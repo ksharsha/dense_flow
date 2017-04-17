@@ -31,7 +31,6 @@ void calclongtimeDenseFlowGPU(string file_name, int bound, int type, int step, i
                                   <<"\" for optical flow extraction.";
 
     setDevice(dev_id);
-    std::cout << "Just set the device id" << std::endl;
     Mat capture_frame, capture_image, prev_image, capture_gray, prev_gray;
     Mat flow_x, flow_y;
     Mat accflow_x, accflow_y; //The matrices to store the accumulated flow values
@@ -72,7 +71,6 @@ void calclongtimeDenseFlowGPU(string file_name, int bound, int type, int step, i
             initialized = true;
             for(int s = 0; s < step; ++s){
                 video_stream >> capture_frame;
-                std::cout << "step is" << s << std::endl;
                 cnt ++;
                 if (capture_frame.empty()) return; // read frames until end
             }
@@ -82,12 +80,9 @@ void calclongtimeDenseFlowGPU(string file_name, int bound, int type, int step, i
                 capture_frame.copyTo(capture_image);
             else
                 cv::resize(capture_frame, capture_image, new_size);
-            std::cout<<"resized the image"<< std::endl;
             cvtColor(capture_image, capture_gray, CV_BGR2GRAY);
-            std::cout<<"grayscaled the image"<< std::endl;
             d_frame_0.upload(prev_gray);
             d_frame_1.upload(capture_gray);
-            std::cout<<"Uploaded the image"<< type << std::endl;
 
             switch(type){
                 case 0: {
@@ -108,7 +103,6 @@ void calclongtimeDenseFlowGPU(string file_name, int bound, int type, int step, i
                 default:
                     LOG(ERROR)<<"Unknown optical method: "<<type;
             }
-            std::cout<<"Computed the flow with sizes "<<d_flow_x.rows <<" "<<  d_flow_y.cols <<  std::endl;
 
             //prefetch while gpu is working
             bool hasnext = true;
@@ -118,34 +112,27 @@ void calclongtimeDenseFlowGPU(string file_name, int bound, int type, int step, i
                 hasnext = !capture_frame.empty();
                 // read frames until end
             }
-            std::cout << "Completed the step loop" << std::endl;
 
             //get back flow map
 
             d_flow_x.download(flow_x);
             d_flow_y.download(flow_y);
-            std::cout<<"Downloaded the flow images"<< std::endl; 
             std::swap(prev_gray, capture_gray);
             std::swap(prev_image, capture_image);
-            std::cout << "The frame number is" << framecount << std::endl;
       
             if((framecount % fcorr) == 1){
                 accflow_x = flow_x.clone();
                 accflow_y = flow_y.clone();
                 //flow_x.copyTo(accflow_x);
                 //flow_y.copyTo(accflow_y);
-                std::cout << "Completed cloning the flow" << std::endl;
             }
             else{
                 accumulateflow(flow_x, accflow_x);
-                //accumulateflow(flow_y, accflow_y);
-                std::cout << "Completed accumulating the flow" << std::endl;
+                accumulateflow(flow_y, accflow_y);
             }
             vector<uchar> str_img;
             imencode(".jpg", capture_image, str_img);
-            std::cout << "Completed Encoding the image" << std::endl;
             output_img.push_back(str_img);
-            std::cout << "Completed pushing the image" << std::endl;
             if((framecount % fcorr) == 0) {
                 vector<uchar> str_x, str_y;
                 encodeFlowMap(accflow_x, accflow_y, str_x, str_y, bound);
