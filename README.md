@@ -44,3 +44,8 @@ To extract warp flow, use the command
 ```
 ./extract_warp_gpu -f test.avi -x tmp/flow_x -y tmp/flow_y -i tmp/image -b 20 -t 1 -d 0 -s 1 -o dir
 ```
+
+To extract continuous optical flow, use the command
+```
+./extract_longtime_gpu -f test.avi -x tmp/flow_x -y tmp/flow_y -i tmp/image -b 20 -t 1 -d 0 -s 1 -o dir
+```
