@@ -17,6 +17,9 @@ using namespace cv;
 
 void convertFlowToImage(const Mat &flow_x, const Mat &flow_y, Mat &img_x, Mat &img_y,
                         double lowerBound, double higherBound);
+
+//void accumulateflow(const Mat& flow, const Mat& accflow);
+
 void drawOptFlowMap(const Mat& flow, Mat& cflowmap, int step,double, const Scalar& color);
 
 void encodeFlowMap(const Mat& flow_map_x, const Mat& flow_map_y,

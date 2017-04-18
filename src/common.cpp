@@ -17,7 +17,18 @@ void convertFlowToImage(const Mat &flow_x, const Mat &flow_y, Mat &img_x, Mat &i
     }
 #undef CAST
 }
+/*
+void accumulateflow(const Mat& flow, Mat& accflow)
+{
 
+    for (int i = 0; i < flow.rows; ++i) {
+        for(int j = 0; j < flow.cols; ++j) {
+            const Point2f& fxy = flow.at< Point2f>(i,j);
+            accflow.at< Point2f>(i, j) = accflow.at< Point2f>(i, j) + flow.at< Point2f>(max(0,min(flow.rows-1,cvRound(i+fxy.y))), max(0,min(flow.cols-1,cvRound(j+fxy.x))));
+        }
+    }
+}
+*/
 void drawOptFlowMap(const Mat& flow, Mat& cflowmap, int step,double, const Scalar& color){
     for(int y = 0; y < cflowmap.rows; y += step)
         for(int x = 0; x < cflowmap.cols; x += step)
